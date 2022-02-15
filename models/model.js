@@ -6,7 +6,7 @@ exports.fetchTopics = () => {
         `SELECT * FROM topics;`
     )
     .then((result) => {
-        console.log(result.rows, "!!!!!")
+        
         return result.rows;
     });
 };

@@ -19,7 +19,7 @@ describe.only('api/topics', () => {
             .get("/api/topics")
             .expect(200)
             .then((response) => {
-                console.log(response.body, "test!!!!!!!!!!!!!!")
+                
                 expect(response.body.topics).toBeInstanceOf(Array);
                 expect(response.body.topics.length).toBeGreaterThan(0);
 
@@ -39,7 +39,7 @@ describe.only('api/topics', () => {
             .get("/api/topiccsss")
             .expect(404)
             .then((response) => {
-                console.log(response.body, "test!!!!!!!!!!!!!!")
+                
                 const message = { msg: "path not found"};
                 expect(response.body).toEqual(message)
             })
