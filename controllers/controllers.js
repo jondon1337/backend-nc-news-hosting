@@ -2,6 +2,7 @@ const {
   fetchTopics,
   fetchArticleById,
   updateArticleVoteById,
+  fetchUsers
 } = require("../models/model");
 
 exports.getTopics = (req, res, next) => {
@@ -36,3 +37,14 @@ exports.patchArticleById = (req, res, next) => {
     next(err);
   });
 };
+
+exports.getUsers = (req, res, next) => {
+  console.log("inside controller")
+  fetchUsers()
+  .then((users) => {
+    res.status(200).send({users:users})
+  })
+  .catch((err) => {
+    next(err);
+  });
+}

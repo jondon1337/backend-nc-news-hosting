@@ -80,8 +80,35 @@ describe("api/topics", () => {
         });
     });
   });
+  describe.only('api/users', () => {
+    test('should return an array of objects, each object should have the following property: username', () => {
+      return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.users).toBeInstanceOf(Array);
+        expect(response.body.users.length).toBeGreaterThan(0);
+        response.body.users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+            })
+          );
+        });
+      });
+    });
+    test('api/users respons with a status 404 when given an incorrect path', () => {
+      return request(app)
+      .get("/api/usersss")
+      .expect(404)
+      .then((response) => {
+        const message = { msg: "path not found" };
+        expect(response.body).toEqual(message);
+      })
+    });
+  });
 });
-describe.only("PATCH", () => {
+describe("PATCH", () => {
   describe("PATCH api/articles/:article_id", () => {
     test("should respond with a status: 200 ", () => {
       return request(app)

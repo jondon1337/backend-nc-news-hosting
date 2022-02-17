@@ -38,3 +38,13 @@ exports.updateArticleVoteById = (articleVoteUpdate, article_id) => {
       return rows[0];
     })
 };
+
+exports.fetchUsers = () => {
+  return db
+    .query(`SELECT * FROM users;`).then((result) => {
+      console.log(result.rows)
+      return result.rows;
+    })
+}
+
+
