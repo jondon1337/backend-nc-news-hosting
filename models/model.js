@@ -23,7 +23,7 @@ exports.fetchArticleById = (article_id) => {
 };
 
 exports.updateArticleVoteById = (articleVoteUpdate, article_id) => {
- 
+ console.log(articleVoteUpdate, article_id)
   return db
     .query(
       `UPDATE articles 
@@ -34,13 +34,7 @@ exports.updateArticleVoteById = (articleVoteUpdate, article_id) => {
      
     )
     .then(({ rows }) => {
-      console.log(articleVoteUpdate)
-      if(!articleVoteUpdate) {
-        return Promise.reject({
-          status: 400,
-          msg: "Bad request"
-        });
-      }
+      console.log(rows[0])
       return rows[0];
-    });
+    })
 };

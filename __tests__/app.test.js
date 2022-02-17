@@ -112,6 +112,16 @@ describe.only("PATCH", () => {
           expect(response.body).toEqual(message);
         });
     });
+    test('malformed body / missing required fields, status 400 Bad Request', () => {
+      return request(app)
+      .patch("/api/articles/2")
+      .send({})
+      .expect(400)
+      .then((response) => {
+        const message = { msg: "Bad request"}
+        expect(response.body).toEqual(message);
+      })
+    });
     test('incorrect type, inc_votes: "one", status 400: Bad request ', () => {
       return request(app)
       .patch("/api/articles/2")
@@ -127,3 +137,6 @@ describe.only("PATCH", () => {
 
 
 
+// sad path passes in string instead of integer status 400 bad request invalid
+// if they missed out the property empty object inc_votes isn't there  statuus 400 bad request
+// 404 test
