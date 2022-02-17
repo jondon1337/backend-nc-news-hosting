@@ -1,24 +1,38 @@
-const { fetchTopics, fetchArticleById } = require('../models/model');
+const {
+  fetchTopics,
+  fetchArticleById,
+  updateArticleVoteById,
+} = require("../models/model");
 
-
-
-exports.getTopics = ((req, res, next) => {
-    fetchTopics().then((topics) => {
-        
-        res.status(200).send(({topics: topics}))
+exports.getTopics = (req, res, next) => {
+  fetchTopics()
+    .then((topics) => {
+      res.status(200).send({ topics: topics });
     })
     .catch((err) => {
-        next(err);
-    })
-})
+      next(err);
+    });
+};
 
-exports.getArticleById = ((req, res, next) => {
-    const { article_id } = req.params;
-    fetchArticleById(article_id).then((article) => {
-         
-        res.status(200).send({ article })
+exports.getArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+  fetchArticleById(article_id)
+    .then((article) => {
+      res.status(200).send({ article });
     })
-    .catch((err)=> {
-        next(err);
-    })
-})
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.patchArticleById = (req, res, next) => {
+  const article_id = req.params.article_id;
+  const votes = req.body.inc_votes;
+
+  updateArticleVoteById(votes, article_id).then((vote) => {
+    res.status(200).send(vote);
+  })
+  .catch((err) => {
+    next(err);
+  });
+};
