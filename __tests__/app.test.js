@@ -212,9 +212,3 @@ describe("PATCH", () => {
     });
   });
 });
-
-
-
-// sad path passes in string instead of integer status 400 bad request invalid
-// if they missed out the property empty object inc_votes isn't there  statuus 400 bad request
-// 404 test
