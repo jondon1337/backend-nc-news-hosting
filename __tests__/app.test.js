@@ -79,6 +79,56 @@ describe("api/topics", () => {
         });
     });
   });
+  describe('api/articles/:article_id (comment_count)', () => {
+    test('should return an article object containing the comment_count', () => {
+      return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.article).toEqual(
+          expect.objectContaining({
+            article_id: 1,
+            title: expect.any(String), 
+            topic: expect.any(String),
+            comment_count: 11,
+            author: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number)
+          })
+        );
+      });
+    });
+    test('should return a status 200 when comment counts is zero', () => {
+      return request(app)
+      .get("/api/articles/2")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.article).toEqual(
+          expect.objectContaining({
+            article_id: 2,
+            title: expect.any(String), 
+            topic: expect.any(String),
+            comment_count: 0,
+            author: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number)
+          })
+        );
+      });
+    });
+    test('should return a status 404 when wrong path has been passed ', () => {
+      return request(app)
+      .get("/api/articlesss/2")
+      .expect(404)
+      .then((response) => {
+        const message = {msg: "path not found"}
+        expect(response.body).toEqual(message);
+      })
+    });
+    
+  });
   describe('api/users', () => {
     test('should return an array of objects, each object should have the following property: username', () => {
       return request(app)
@@ -106,8 +156,8 @@ describe("api/topics", () => {
       })
     });
   });
-  describe.only('api/articles', () => {
-    test.only('should respond with an articles array of article objects with the author set as the username from the users table, sorted in descending order', () => {
+  describe('api/articles', () => {
+    test('should respond with an articles array of article objects with the author set as the username from the users table, sorted in descending order', () => {
       return request(app)
       .get("/api/articles?sort_by=created_at&order=desc")
       .expect(200)
@@ -141,7 +191,7 @@ describe("api/topics", () => {
     });
     test('api/articles should respond with a status 400 when sortby is not valid ', () => {
       return request(app)
-      .get("/api/articles?sortby=not-valid&order=desc")
+      .get("/api/articles?sort_by=not-valid&order=desc")
       .expect(400)
       .then((response) => {
         const message = { msg: "Bad request"}

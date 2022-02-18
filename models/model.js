@@ -8,22 +8,26 @@ exports.fetchTopics = () => {
 
 exports.fetchArticleById = (article_id) => {
   return db
-    .query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
+    .query(`SELECT articles.*, CAST(COUNT(comments.article_id) AS INT) AS comment_count 
+    FROM articles 
+    LEFT JOIN comments ON articles.article_id = comments.article_id 
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id;`, [article_id])
     .then((result) => {
       const article = result.rows[0];
+    
       if (!article) {
         return Promise.reject({
           status: 404,
           msg: "article not found",
         });
       }
-
       return article;
-    });
+    })
 };
 
 exports.updateArticleVoteById = (articleVoteUpdate, article_id) => {
-  console.log(articleVoteUpdate, article_id);
+  
   return db
     .query(
       `UPDATE articles 
@@ -51,13 +55,13 @@ exports.fetchArticles = (
   const order = orderQuery.toUpperCase()
   const greenList = ["created_at", "topic", "votes"]
 
-  if(!greenList.includes(sort_by) ) {
-    console.log("bad sortby")
+  if(!greenList.includes(sort_by)) {
+    
     return Promise.reject({ status: 400, msg: "Bad request"})
   }
   
   if(order !== "DESC" && order !== "ASC") {
-    console.log("bad order")
+    
     return Promise.reject({ status: 400, msg: "Bad request"})
   }
  
