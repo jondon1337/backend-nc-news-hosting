@@ -2,7 +2,8 @@ const {
   fetchTopics,
   fetchArticleById,
   updateArticleVoteById,
-  fetchUsers
+  fetchUsers,
+  fetchArticles
 } = require("../models/model");
 
 exports.getTopics = (req, res, next) => {
@@ -39,12 +40,24 @@ exports.patchArticleById = (req, res, next) => {
 };
 
 exports.getUsers = (req, res, next) => {
-  console.log("inside controller")
   fetchUsers()
   .then((users) => {
-    res.status(200).send({users:users})
+    res.status(200).send({ users:users })
   })
   .catch((err) => {
     next(err);
   });
+}
+
+exports.getArticles = (req, res, next) => {
+  const sort_by = req.query.sort_by
+  const order = req.query.order
+ 
+  fetchArticles(sort_by, order)
+  .then((articles) => {
+    res.status(200).send({ articles: articles })
+  })
+  .catch((err) => {
+    next(err);
+  })
 }

@@ -23,7 +23,6 @@ describe("api/topics", () => {
         .then((response) => {
           expect(response.body.topics).toBeInstanceOf(Array);
           expect(response.body.topics.length).toBeGreaterThan(0);
-
           response.body.topics.forEach((topic) => {
             expect(topic).toEqual(
               expect.objectContaining({
@@ -80,7 +79,7 @@ describe("api/topics", () => {
         });
     });
   });
-  describe.only('api/users', () => {
+  describe('api/users', () => {
     test('should return an array of objects, each object should have the following property: username', () => {
       return request(app)
       .get("/api/users")
@@ -103,6 +102,58 @@ describe("api/topics", () => {
       .expect(404)
       .then((response) => {
         const message = { msg: "path not found" };
+        expect(response.body).toEqual(message);
+      })
+    });
+  });
+  describe.only('api/articles', () => {
+    test.only('should respond with an articles array of article objects with the author set as the username from the users table, sorted in descending order', () => {
+      return request(app)
+      .get("/api/articles?sort_by=created_at&order=desc")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSorted({key: "created_at", descending: true});
+        expect(response.body.articles).toBeInstanceOf(Array);
+        expect(response.body.articles.length).toBeGreaterThan(0);
+        response.body.articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number)
+            })
+          )
+        })
+      })
+    });
+    test('api/articles responds with a status 404 when given an incorrect path', () => {
+      return request(app)
+      .get("/api/articlessss")
+      .expect(404)
+      .then((response) => {
+        const message = { msg: "path not found" };
+        expect(response.body).toEqual(message);
+      })
+    });
+    test('api/articles should respond with a status 400 when sortby is not valid ', () => {
+      return request(app)
+      .get("/api/articles?sortby=not-valid&order=desc")
+      .expect(400)
+      .then((response) => {
+        const message = { msg: "Bad request"}
+        expect(response.body).toEqual(message);
+      })
+    });
+    test('api/articles should respond with a status 400 when order is not valid', () => {
+      return request(app)
+      .get("/api/articles?sortby=creation_at&order=not-valid")
+      .expect(400)
+      .then((response) => {
+        const message = { msg: "Bad request"}
         expect(response.body).toEqual(message);
       })
     });
