@@ -193,7 +193,7 @@ describe("api/topics", () => {
     });
   });
   describe("api/articles", () => {
-    test.skip("should respond with an articles array of article objects with the author set as the username from the users table, sorted in descending order", () => {
+    test("should respond with an articles array of article objects with the author set as the username from the users table, sorted in descending order", () => {
       return request(app)
         .get("/api/articles?sort_by=created_at&order=desc")
         .expect(200)
@@ -228,9 +228,9 @@ describe("api/topics", () => {
           expect(response.body).toEqual(message);
         });
     });
-    test.skip("api/articles should respond with a status 400 when sortby is not valid ", () => {
+    test("api/articles should respond with a status 400 when sortby is not valid ", () => {
       return request(app)
-        .get("/api/articles?sort_by=not-valid&order=desc")
+        .get("/api/articles?sortby=not-valid&order=desc")
         .expect(400)
         .then((response) => {
           const message = { msg: "Bad request" };
@@ -247,10 +247,10 @@ describe("api/topics", () => {
         });
     });
   });
-  describe.skip('GET /api/articles (queries)', () => {
-    test.skip('the end point should also accept the following queries: sort_by: which sorts the articles by any valid column (defaults to date), order: which can be set to `asc` or `desc` for ascending or descending (defaults to descending), topic: which filters the articles by the topic value specified in the query', () => {
+  describe('GET /api/articles (queries)', () => {
+    test('the end point should also accept the following queries: sort_by: which sorts the articles by any valid column (defaults to date), order: which can be set to `asc` or `desc` for ascending or descending (defaults to descending), topic: which filters the articles by the topic value specified in the query', () => {
       return request(app)
-        .get("/api/articles?sortby=title&order=desc&topic=cat")
+        .get("/api/articles?sortby=title&order=desc&topic=cats")
         .expect(200)
         .then((response) => {
           console.log(response.body.articles)
@@ -265,7 +265,7 @@ describe("api/topics", () => {
               expect.objectContaining({
                 article_id: expect.any(Number),
                 title: expect.any(String),
-                topic: expect.any(String),
+                topic: "cats",
                 author: expect.any(String),
                 body: expect.any(String),
                 created_at: expect.any(String),

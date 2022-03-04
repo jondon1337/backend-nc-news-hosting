@@ -50,39 +50,48 @@ exports.fetchUsers = () => {
 exports.fetchArticles = (
   sortby = "created_at",
   orderQuery = "DESC",
-  topic = "cat"
+  topic
   
 ) => {
-  
+  let queryString = `
+  SELECT *
+  FROM articles
+  `
+  const queryArray = [];
   const order = orderQuery.toUpperCase()
   const greenList = ["created_at", "title", "topic", "votes"]
+
+  if(topic) {
+    queryString += ` WHERE topic = $1 `
+    queryArray.push(topic)
+  } 
 
   if(!greenList.includes(sortby)) {
     
     return Promise.reject({ status: 400, msg: "Bad request"})
+  }
+  else{
+    queryString += `ORDER BY ${sortby}`
   }
   
   if(order !== "DESC" && order !== "ASC") {
     
     return Promise.reject({ status: 400, msg: "Bad request"})
   }
- 
+  else{
+    queryString += ` ${order}`
+  }
+ console.log(queryString)
  console.log(sortby,order)
-  
+ 
+queryString += `;`
+
   return db
-    .query( `
-    SELECT *
-    FROM articles
-    ORDER BY $1 DESC;
-    `, [sortby])
+    .query(queryString, queryArray) 
     .then((result) => {
       
       return result.rows;
     })
-    .catch((err) => {
-      console.log(err)
-      next(err)
-    }) 
 };
 
 exports.fetchCommentsByArticleId = (article_id) => {
