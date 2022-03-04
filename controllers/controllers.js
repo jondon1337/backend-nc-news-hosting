@@ -3,7 +3,10 @@ const {
   fetchArticleById,
   updateArticleVoteById,
   fetchUsers,
-  fetchArticles
+  fetchArticles, 
+  fetchCommentsByArticleId,
+  checkIfArticleExists,
+  sendCommentByArticleId
 } = require("../models/model");
 
 exports.getTopics = (req, res, next) => {
@@ -50,14 +53,43 @@ exports.getUsers = (req, res, next) => {
 }
 
 exports.getArticles = (req, res, next) => {
-  const sort_by = req.query.sort_by
+  const sortby = req.query.sortby
   const order = req.query.order
- 
-  fetchArticles(sort_by, order)
+  const topic = req.query.topic
+
+  fetchArticles(sortby, order, topic)
   .then((articles) => {
+    
     res.status(200).send({ articles: articles })
   })
   .catch((err) => {
     next(err);
   })
+}
+
+exports.getCommentsByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  Promise.all([ fetchCommentsByArticleId(article_id), checkIfArticleExists(article_id)])
+  .then(([comment]) => {
+    
+    res.status(200).send({ comment: comment }) 
+  })
+  .catch((err) => {
+    next(err);
+  })
+}
+
+exports.postCommentByArticleId = (req, res, next) => {
+  const article_id = req.params.article_id;
+  const newPost  = req.body;
+ 
+  sendCommentByArticleId(article_id, newPost)
+    .then((comment) => {
+      res.status(201).send({comment})
+      console.log({comment})
+    })
+    .catch((err) => {
+       console.log(err)
+      next(err);
+    })
 }

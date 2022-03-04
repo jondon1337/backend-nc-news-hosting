@@ -2,16 +2,18 @@ const express = require('express');
 const res = require('express/lib/response');
 const app = express();
 app.use(express.json());
-const { getTopics, getUsers, getArticles, getArticleById, patchArticleById } = require('./controllers/controllers');
+const { getTopics, getUsers, getArticles, getArticleById, patchArticleById, getCommentsByArticleId, postCommentByArticleId } = require('./controllers/controllers');
 const { handleCustomErrors,  handlePSQLErrors, handle500s} = require("./controllers/controller-errors/errors")
 
 
 
-app.get('/api/topics', getTopics);
+app.get("/api/topics", getTopics);
 app.get("/api/users", getUsers);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
+app.get("/api/articles/:article_id/comments", getCommentsByArticleId)
 app.patch("/api/articles/:article_id", patchArticleById);
+app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 
 
 app.use(handleCustomErrors);

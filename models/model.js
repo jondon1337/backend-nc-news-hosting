@@ -48,14 +48,16 @@ exports.fetchUsers = () => {
 };
 
 exports.fetchArticles = (
-  sort_by = "created_at",
-  orderQuery = "DESC"
+  sortby = "created_at",
+  orderQuery = "DESC",
+  topic = "cat"
   
 ) => {
+  
   const order = orderQuery.toUpperCase()
-  const greenList = ["created_at", "topic", "votes"]
+  const greenList = ["created_at", "title", "topic", "votes"]
 
-  if(!greenList.includes(sort_by)) {
+  if(!greenList.includes(sortby)) {
     
     return Promise.reject({ status: 400, msg: "Bad request"})
   }
@@ -65,16 +67,59 @@ exports.fetchArticles = (
     return Promise.reject({ status: 400, msg: "Bad request"})
   }
  
- 
-  let queryCreationTime =    `
-  SELECT *
-  FROM articles
-  ORDER BY created_at DESC;
-  `;
+ console.log(sortby,order)
+  
   return db
-    .query(queryCreationTime)
+    .query( `
+    SELECT *
+    FROM articles
+    ORDER BY $1 DESC;
+    `, [sortby])
     .then((result) => {
       
       return result.rows;
-    });
+    })
+    .catch((err) => {
+      console.log(err)
+      next(err)
+    }) 
 };
+
+exports.fetchCommentsByArticleId = (article_id) => {
+ 
+  return db
+  .query(`
+  SELECT comment_id,votes,created_at,author,body FROM comments
+  WHERE article_id = $1;
+  `, [article_id])
+  .then((result) => {
+    console.log(result.rows)
+    return result.rows
+  })
+};
+
+exports.checkIfArticleExists = (article_id) => {
+  return db
+  .query(`
+  SELECT * FROM articles
+  WHERE article_id = $1;
+  `, [article_id])
+  .then((result) => {
+    if(result.rows.length === 0) {
+      return Promise.reject({status:404, msg: "Article not found"})
+    }
+  })
+}
+
+exports.sendCommentByArticleId = (article_id, newPost) => {
+  const { username, body } = newPost 
+  
+  return db.query(`
+  INSERT INTO comments (article_id, username, body, votes, created_at)
+  VALUES ($1, $2, $3, 0, NOW()) 
+  RETURNING *;`, [article_id, username, body])
+  .then((result) => {
+    console.log(result.rows[0])
+    return result.rows[0]
+  })
+}
