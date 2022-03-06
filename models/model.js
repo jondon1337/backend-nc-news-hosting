@@ -37,12 +37,14 @@ exports.updateArticleVoteById = (articleVoteUpdate, article_id) => {
       [articleVoteUpdate, article_id]
     )
     .then(({ rows }) => {
+      
       return rows[0];
     });
 };
 
 exports.fetchUsers = () => {
   return db.query(`SELECT * FROM users;`).then((result) => {
+    
     return result.rows;
   });
 };
@@ -60,6 +62,9 @@ exports.fetchArticles = (
   const queryArray = [];
   const order = orderQuery.toUpperCase()
   const greenList = ["created_at", "title", "topic", "votes"]
+ 
+
+
 
   if(topic) {
     queryString += ` WHERE topic = $1 `
@@ -81,15 +86,12 @@ exports.fetchArticles = (
   else{
     queryString += ` ${order}`
   }
- console.log(queryString)
- console.log(sortby,order)
  
 queryString += `;`
 
   return db
     .query(queryString, queryArray) 
     .then((result) => {
-      
       return result.rows;
     })
 };
@@ -102,7 +104,7 @@ exports.fetchCommentsByArticleId = (article_id) => {
   WHERE article_id = $1;
   `, [article_id])
   .then((result) => {
-    console.log(result.rows)
+    
     return result.rows
   })
 };
@@ -121,14 +123,30 @@ exports.checkIfArticleExists = (article_id) => {
 }
 
 exports.sendCommentByArticleId = (article_id, newPost) => {
-  const { username, body } = newPost 
-  
+  const { username, body } = newPost
+   
+  if(!username || !body) {
+    return Promise.reject({status: 400, msg: "Bad request. invalid path"})
+  }
+
+  if(typeof body === "number")
+    return Promise.reject({status: 400, msg: "Bad request. invalid path"})
+
   return db.query(`
-  INSERT INTO comments (article_id, username, body, votes, created_at)
-  VALUES ($1, $2, $3, 0, NOW()) 
-  RETURNING *;`, [article_id, username, body])
-  .then((result) => {
-    console.log(result.rows[0])
-    return result.rows[0]
+  INSERT INTO comments (body, author, article_id)
+  VALUES ($1, $2, $3) 
+  RETURNING *;`, [body, username, article_id])
+  .then(({rows}) => {
+    
+    return rows[0];
   })
+ 
+}
+
+exports.removeCommentById = (comment_id) => {
+  return db.query(
+    `DELETE FROM comments
+    WHERE comment_id = $1;
+    `, [comment_id])
+  
 }

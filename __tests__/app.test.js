@@ -247,13 +247,19 @@ describe("api/topics", () => {
         });
     });
   });
+
+
+
+
+
+
+
   describe('GET /api/articles (queries)', () => {
     test('the end point should also accept the following queries: sort_by: which sorts the articles by any valid column (defaults to date), order: which can be set to `asc` or `desc` for ascending or descending (defaults to descending), topic: which filters the articles by the topic value specified in the query', () => {
       return request(app)
         .get("/api/articles?sortby=title&order=desc&topic=cats")
         .expect(200)
         .then((response) => {
-          console.log(response.body.articles)
           expect(response.body.articles).toBeSorted({
             key: "title",
             descending: true
@@ -275,10 +281,55 @@ describe("api/topics", () => {
           });
         })
     });
+    test("api/articles responds with a status 404 when given an incorrect path", () => {
+      return request(app)
+        .get("/api/articlessss?sortby=title&order=desc&topic=cats")
+        .expect(404)
+        .then((response) => {
+          const message = { msg: "path not found" };
+          expect(response.body).toEqual(message);
+        });
+    });
+    test("api/articles should respond with a status 400 when sortby is not valid ", () => {
+      return request(app)
+        .get("/api/articles?sortby=not-valid&order=desc&topic=cats")
+        .expect(400)
+        .then((response) => {
+          const message = { msg: "Bad request" };
+          expect(response.body).toEqual(message);
+        });
+    });
+    test("api/articles should respond with a status 400 when order is not valid", () => {
+      return request(app)
+        .get("/api/articles?sortby=created_at&order=not-valid&topic=cats")
+        .expect(400)
+        .then((response) => {
+          const message = { msg: "Bad request" };
+          expect(response.body).toEqual(message);
+        });
+    });
+    //test.only("api/articles should respond with a status 400 when topic is not valid", () => {
+      //return request(app)
+        //.get("/api/articles?sortby=created_at&order=desc&topic=not_valid_topic")
+        //.expect(400)
+       // .then((response) => {
+          //const message = { msg: "Bad request" };
+          //expect(response.body).toEqual(message);
+        //});
+    //});
+    test('should respond with an empty array when topic has no articles associated with it status 200', () => {
+      return request(app)
+      .get("/api/articles?sortby=title&order=desc&topic=paper")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toEqual([]);
+      })
+    });
   });
 });
+
 describe("PATCH", () => {
-  describe("PATCH api/articles/:article_id", () => {
+  describe("api/articles/:article_id", () => {
     test("should respond with a status: 200 ", () => {
       return request(app)
         .patch("/api/articles/2")
@@ -330,11 +381,12 @@ describe("PATCH", () => {
     });
   });
 });
-describe.skip('POST', () => {
+
+describe('POST', () => {
   describe('/api/articles/:article_id/comments', () => {
-    test.skip('an object with the following properties:username, body. Responds with: the posted comment', () => {
+    test('an object with the following properties:username, body. Responds with: the posted comment', () => {
       const newPost = {
-        username: "butter-bridge",
+        username: "butter_bridge",
         body: "this is a comment"
       }
       return request(app)
@@ -344,15 +396,100 @@ describe.skip('POST', () => {
       .then((response) => {
         expect(response.body.comment).toEqual(expect.objectContaining({
         article_id: 1,
-        author: "butter-bridge",
+        author: "butter_bridge",
         body: "this is a comment",
         created_at: expect.any(String),
         votes: 0,
         }))
       })
     });
+    test("api/comments/:article_id/comments responds with a status 404 when given an incorrect path", () => {
+      return request(app)
+        .post("/api/carticlleess/1/comments")
+        .expect(404)
+        .then((response) => {
+          const message = { msg: "path not found" };
+          expect(response.body).toEqual(message);
+        });
+    });
+    test("should respond with status: 400 invalid data type for an invalid id ", () => {
+      return request(app)
+        .post("/api/articles/not_a_valid_id/comments")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request. invalid path");
+        });
+    });
+    test("should respond with status: 400 failing schema validation", () => {
+      const newPost = {
+        username: "butter_bridge",
+        body: 1
+      }
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newPost)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request. invalid path");
+        });
+    });
+    test("should respond with status: 400 malformed body / missing required fields: ", () => {
+      const newPost = {
+       
+      };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newPost)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request. invalid path");
+        });
+    });
   });
 });
+
+
+describe('DELETE', () => {
+  describe('/api/comments/:comment_id', () => {
+    test('should delete the given comment by comment_id', () => {
+      return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+    });
+    test("api/comments/:comment_id responds with a status 404 when given an incorrect path", () => {
+      return request(app)
+        .delete("/api/commentssss/1")
+        .expect(404)
+        .then((response) => {
+          const message = { msg: "path not found" };
+          expect(response.body).toEqual(message);
+        });
+    });
+    test("should respond with status: 400 invalid data type for an invalid id ", () => {
+      return request(app)
+        .delete("/api/comments/not_a_valid_id")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+ 
+    test("should respond with status: 404 when a valid request is made but id does not exist  ", () => {
+      return request(app)
+        .get("/api/comments/99999999")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("path not found");
+        });
+    });
+  });
+});
+
+
+
+
+
+
 
 // sad path passes in string instead of integer status 400 bad request invalid
 // if they missed out the property empty object inc_votes isn't there  statuus 400 bad request

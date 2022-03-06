@@ -6,7 +6,8 @@ const {
   fetchArticles, 
   fetchCommentsByArticleId,
   checkIfArticleExists,
-  sendCommentByArticleId
+  sendCommentByArticleId,
+  removeCommentById
 } = require("../models/model");
 
 exports.getTopics = (req, res, next) => {
@@ -36,6 +37,7 @@ exports.patchArticleById = (req, res, next) => {
 
   updateArticleVoteById(votes, article_id).then((vote) => {
     res.status(200).send(vote);
+    
   })
   .catch((err) => {
     next(err);
@@ -46,6 +48,7 @@ exports.getUsers = (req, res, next) => {
   fetchUsers()
   .then((users) => {
     res.status(200).send({ users:users })
+    
   })
   .catch((err) => {
     next(err);
@@ -63,7 +66,6 @@ exports.getArticles = (req, res, next) => {
     res.status(200).send({ articles: articles })
   })
   .catch((err) => {
-    console.log(err)
     next(err);
   })
 }
@@ -72,8 +74,8 @@ exports.getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   Promise.all([ fetchCommentsByArticleId(article_id), checkIfArticleExists(article_id)])
   .then(([comment]) => {
-    
     res.status(200).send({ comment: comment }) 
+    
   })
   .catch((err) => {
     next(err);
@@ -83,14 +85,27 @@ exports.getCommentsByArticleId = (req, res, next) => {
 exports.postCommentByArticleId = (req, res, next) => {
   const article_id = req.params.article_id;
   const newPost  = req.body;
- 
-  sendCommentByArticleId(article_id, newPost)
+
+  sendCommentByArticleId( article_id, newPost)
     .then((comment) => {
-      res.status(201).send({comment})
-      console.log({comment})
+      res.status(201).send({comment: comment})
+      
     })
     .catch((err) => {
-       console.log(err)
+      
       next(err);
     })
 }
+
+exports.deleteCommentByCommentId = (req, res, next) => {
+  const comment_id = req.params.comment_id
+  
+  removeCommentById(comment_id)
+    .then(() => {    
+      res.status(204).send(`comment id:${comment_id} deleted`)
+        
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
