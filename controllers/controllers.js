@@ -2,6 +2,7 @@ const {
   fetchTopics,
   fetchArticleById,
   updateArticleVoteById,
+  updateCommentVoteById,
   fetchUsers,
   fetchArticles, 
   fetchCommentsByArticleId,
@@ -38,6 +39,18 @@ exports.patchArticleById = (req, res, next) => {
   updateArticleVoteById(votes, article_id).then((vote) => {
     res.status(200).send(vote);
     
+  })
+  .catch((err) => {
+    next(err);
+  });
+};
+
+exports.patchCommentById = (req, res, next) => {
+  const comment_id = req.params.comment_id;
+  const votes = req.body.inc_votes;
+
+  updateCommentVoteById(votes, comment_id).then((vote) => {
+    res.status(200).send(vote);
   })
   .catch((err) => {
     next(err);

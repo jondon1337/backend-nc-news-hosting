@@ -42,6 +42,22 @@ exports.updateArticleVoteById = (articleVoteUpdate, article_id) => {
     });
 };
 
+exports.updateCommentVoteById = (commentVoteUpdate, comment_id) => {
+
+  return db
+    .query(
+      `UPDATE comments
+        SET votes = votes + $1
+        WHERE comment_id = $2
+        RETURNING *;`,
+      [commentVoteUpdate, comment_id]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+
+};
+
 exports.fetchUsers = () => {
   return db.query(`SELECT * FROM users;`).then((result) => {
     

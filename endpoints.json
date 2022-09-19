@@ -70,6 +70,19 @@
       }
     },
 
+    "PATCH /api//comments/:comment_id": {
+      "description": "serves a comment object with modified vote count through comment_id",
+      "queries": [],
+      "exampleResponse": {
+        "article_id": 1,
+        "author": "butter_bridge",
+        "body": "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+        "comment_id": 2,
+        "created_at": "1604113380000",
+        "votes": 15
+      }
+    },
+
     "PATCH /api//articles/:article_id": {
       "description": "serves an article object with modified vote count through article_id",
       "queries": [],
